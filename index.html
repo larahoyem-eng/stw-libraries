@@ -411,6 +411,28 @@
     color: #7A5A00;
   }
 
+  .generic-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; padding: 1px 6px; border-radius: 10px;
+    background: #FFF3CC; color: #7A5A00;
+    border: 1px solid #D4A843; margin-left: 6px; white-space: nowrap;
+  }
+  .quality-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; font-size: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .quality-row:last-child { border-bottom: none; }
+  .quality-count {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    font-weight: 600;
+  }
+  .quality-count.warn { background: #FFF3CC; color: #7A5A00; border: 1px solid #D4A843; }
+  .quality-count.ok   { background: #E8F5EC; color: #2A5E38; border: 1px solid #4A7C59; }
+  .quality-count.info { background: #EEF3FF; color: #1A3A7A; border: 1px solid #4A7ACC; }
+  tbody tr.generic-row { background: #FFFBF0; }
+  tbody tr.generic-row:hover { background: #FFF5D6; }
+
   /* Responsive tweaks */
   @media (max-width: 1100px) {
     .content { grid-template-columns: 1fr; }
@@ -481,8 +503,8 @@
 <!-- VIEW TABS -->
 <div class="view-tabs" style="justify-content:space-between;align-items:center;padding-right:36px">
   <div style="display:flex;gap:2px">
-    <button class="tab-btn active" onclick="switchTab('community', this)" data-en="Community View" data-es="Vista de Comunidades">Community View</button>
-    <button class="tab-btn" onclick="switchTab('financial', this)" data-en="Financial Summary" data-es="Resumen Financiero">Financial Summary</button>
+    <button class="tab-btn active" onclick="switchTab('community', this)" data-en="Community Roster" data-es="Lista de Comunidades">Community Roster</button>
+    <button class="tab-btn" onclick="switchTab('financial', this)" data-en="Financial Log" data-es="Registro Financiero">Financial Log</button>
     <button class="tab-btn" onclick="switchTab('history', this)" data-en="Community History" data-es="Historial por Comunidad">Community History</button>
   </div>
   <!-- Currency toggle — always visible -->
@@ -533,7 +555,7 @@
   <div class="content">
     <div class="table-section">
       <div class="table-header">
-        <h2 data-en="Community Records" data-es="Registros de Comunidades">Community Records</h2>
+        <h2 data-en="Community Roster" data-es="Lista de Comunidades">Community Roster</h2>
         <div style="display:flex;align-items:center;gap:10px">
           <span class="count" id="table-count">133 communities</span>
           <button class="btn-reset" onclick="downloadCSV('community')" title="Download visible communities as CSV" style="display:flex;align-items:center;gap:5px" data-en="⬇ CSV" data-es="⬇ CSV">⬇ CSV</button>
@@ -564,6 +586,11 @@
         <h3 data-en="By Country" data-es="Por País">By Country</h3>
         <div class="panel-body" id="country-breakdown"></div>
       </div>
+      <!-- Data quality -->
+      <div class="panel-card">
+        <h3 data-en="Data Quality" data-es="Calidad de Datos">Data Quality</h3>
+        <div class="panel-body" id="quality-flags" style="padding:8px 18px"></div>
+      </div>
       <!-- Cycle year distribution -->
       <div class="panel-card">
         <h3 data-en="Cycle Year Distribution" data-es="Distribución por Año de Ciclo">Cycle Year Distribution</h3>
@@ -590,7 +617,7 @@
   <div class="fin-table-wrap" style="padding-top:24px">
     <div class="fin-table-section">
       <div class="table-header" style="padding:16px 22px">
-        <h2 data-en="Financial Summary — by Community &amp; Year" data-es="Resumen Financiero — por Comunidad y Año">Financial Summary — by Community &amp; Year</h2>
+        <h2 data-en="Financial Log — by Community &amp; Year" data-es="Registro Financiero — por Comunidad y Año">Financial Log — by Community &amp; Year</h2>
         <div style="display:flex;align-items:center;gap:10px">
           <span class="count" id="fin-count">—</span>
           <button class="btn-reset" onclick="downloadCSV('financial')" title="Download financial records as CSV" style="display:flex;align-items:center;gap:5px">⬇ CSV</button>
@@ -766,6 +793,16 @@ function resetFilters() {
   applyFilters();
 }
 
+function filterToGeneric() {
+  // Reset all filters then show only generic-named communities
+  ['f-country','f-agent','f-cycle','f-year'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-search').value = '';
+  // Apply filter manually to show only generic
+  filtered = RAW.filter(c => isGeneric(c.community));
+  sortData();
+  renderAll();
+}
+
 function sortBy(col) {
   if (sortCol === col) sortDir *= -1;
   else { sortCol = col; sortDir = 1; }
@@ -792,6 +829,12 @@ function sortData() {
     if (av > bv) return 1 * sortDir;
     return 0;
   });
+}
+
+// Generic name detection
+const GENERIC_PATTERNS = ['Comunidades nuevas', 'Escuela 1', 'Escuela 2', 'Pueblo Nuevo', 'Nuevo'];
+function isGeneric(community) {
+  return GENERIC_PATTERNS.some(p => community.includes(p));
 }
 
 function renderAll() {
@@ -851,7 +894,12 @@ function renderSummaryCards() {
 
 function renderTable() {
   const tbody = document.getElementById('table-body');
-  document.getElementById('table-count').textContent = filtered.length + ' communities';
+  const genericCount = filtered.filter(c => isGeneric(c.community)).length;
+  const lang = currentLang;
+  const commWord = lang === 'es' ? 'comunidades' : 'communities';
+  const genLabel = lang === 'es' ? 'nombres genéricos' : 'generic names';
+  document.getElementById('table-count').innerHTML = `${filtered.length} ${commWord}` +
+    (genericCount > 0 ? ` <span style="background:#FFF3CC;color:#7A5A00;padding:2px 8px;border-radius:10px;font-size:11px;border:1px solid #D4A843;margin-left:6px">${genericCount} ${genLabel}</span>` : '');
 
   if (filtered.length === 0) {
     tbody.innerHTML = `<tr><td colspan='8' style='text-align:center;padding:40px;color:#aaa;'>${t('no_communities')}</td></tr>`;
@@ -868,9 +916,10 @@ function renderTable() {
     const currency = c.yearly_data[0]?.currency || 'GTQ';
     const stwPct = hasSplit && (stwTotal + parTotal) > 0 ? Math.round(stwTotal / (stwTotal + parTotal) * 100) : null;
 
-    return `<tr onclick="selectRow(${i})" class="${selectedIdx === i ? 'selected' : ''}">
+    const isGen = isGeneric(c.community);
+    return `<tr onclick="selectRow(${i})" class="${selectedIdx === i ? 'selected' : ''}${isGen ? ' generic-row' : ''}">
       <td><span class="country-badge ${c.country}">${c.country}</span></td>
-      <td><strong>${c.community}</strong></td>
+      <td><strong>${c.community}</strong>${isGen ? '<span class="generic-badge">' + (currentLang==='es'?'nombre genérico':'generic name') + '</span>' : ''}</td>
       <td style="color:var(--muted)">${c.municipality || '—'}</td>
       <td>${c.change_agent || '—'}</td>
       <td>${cycleYears.map(y => `<span class="cycle-pip y${y}">${y}</span>`).join(' ')}</td>
@@ -952,6 +1001,25 @@ function renderSidePanel() {
   }));
   const maxCy = Math.max(...Object.values(cycleCounts), 1);
   const cycleLabels = t('cycle_labels');
+  // Quality flags panel
+  const qualityEl = document.getElementById('quality-flags');
+  if (qualityEl) {
+    const genericComms = filtered.filter(c => isGeneric(c.community));
+    const missingAgent = filtered.filter(c => !c.change_agent || c.change_agent === 'Retirado');
+    const noSplit = filtered.filter(c => c.yearly_data.every(y => y.parent_contribution === null));
+    const gl = currentLang === 'es';
+    qualityEl.innerHTML = [
+      [gl?'Nombres genéricos':'Generic names', genericComms.length, genericComms.length>0?'warn':'ok'],
+      [gl?'Sin agente asignado':'Missing agent', missingAgent.length, missingAgent.length>0?'warn':'ok'],
+      [gl?'Sin datos de división':'No split data', noSplit.length, 'info'],
+    ].map(([label, count, cls]) => `
+      <div class="quality-row">
+        <span style="color:var(--ink)">${label}</span>
+        <span class="quality-count ${cls}">${count}</span>
+      </div>`).join('') +
+    (genericComms.length > 0 ? `<div style="margin-top:8px"><button onclick="filterToGeneric()" style="font-family:DM Sans,sans-serif;font-size:11px;padding:4px 10px;border:1px solid #D4A843;border-radius:6px;background:#FFF3CC;color:#7A5A00;cursor:pointer;width:100%">${gl?'Ver solo nombres genéricos':'Show generic names only'}</button></div>` : '');
+  }
+
   document.getElementById('cycle-breakdown').innerHTML = [1,2,3,4,5].map(y => {
     const n = cycleCounts[y] || 0;
     return `<div class="cycle-row">
