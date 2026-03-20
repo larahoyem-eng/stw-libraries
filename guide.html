@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Guide — School The World</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --cream: #F7F3EE; --ink: #1A1410; --rust: #C4552A; --gold: #D4A843;
+    --sage: #4A7C59; --sky: #3A6B9C; --muted: #7A6E65; --border: #DDD5CC;
+    --card: #FFFFFF; --light: #FAF7F4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); line-height: 1.6; }
+
+  header {
+    background: var(--ink); padding: 18px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--cream); }
+  .logo em { color: var(--gold); font-style: normal; }
+  .logo-sub { font-size: 11px; color: var(--muted); letter-spacing: 1.2px; text-transform: uppercase; margin-top: 2px; }
+
+  .lang-toggle { display: flex; background: rgba(255,255,255,0.1); border-radius: 20px; overflow: hidden; }
+  .lang-btn {
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+    padding: 5px 14px; border: none; background: none; color: #aaa; cursor: pointer; transition: all 0.15s;
+  }
+  .lang-btn.active { background: rgba(255,255,255,0.2); color: #fff; }
+
+  .wrapper { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  .intro {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 28px 32px; margin-bottom: 32px;
+    border-left: 4px solid var(--rust);
+  }
+  .intro h1 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; margin-bottom: 10px; }
+  .intro p { font-size: 14px; color: var(--muted); }
+
+  .section { margin-bottom: 28px; }
+  .section-head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .section-head h2 { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 22px; margin-bottom: 12px;
+  }
+  .card h3 { font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--ink); }
+  .card p, .card li { font-size: 13px; color: var(--muted); }
+  .card ul { padding-left: 18px; }
+  .card li { margin-bottom: 4px; }
+
+  .tab-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; padding: 4px 12px;
+    border-radius: 20px; margin-bottom: 8px;
+  }
+  .tab-pill.roster  { background: #FFF3E8; color: var(--rust); border: 1px solid #F0C8B0; }
+  .tab-pill.log     { background: #EEF3FF; color: var(--sky); border: 1px solid #B0C4E8; }
+  .tab-pill.history { background: #E8F5EC; color: var(--sage); border: 1px solid #B0D4BC; }
+
+  .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  .filter-item { background: var(--light); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+  .filter-item .name { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .filter-item .desc { font-size: 12px; color: var(--muted); }
+  .filter-item .example { font-size: 11px; color: var(--rust); margin-top: 4px; font-style: italic; }
+
+  .feature-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .feature-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 20px; position: relative; overflow: hidden;
+  }
+  .feature-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .feature-card.currency::before { background: var(--gold); }
+  .feature-card.language::before { background: var(--sky); }
+  .feature-card.quality::before  { background: var(--rust); }
+  .feature-card.download::before { background: var(--sage); }
+  .feature-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .feature-card p, .feature-card li { font-size: 13px; color: var(--muted); }
+  .feature-card ul { padding-left: 16px; }
+  .feature-card li { margin-bottom: 3px; }
+
+  .note {
+    background: #FFF8EC; border: 1px solid #ECD9A0; border-radius: 8px;
+    padding: 12px 16px; font-size: 12px; color: #7A5A00; margin-top: 12px;
+  }
+
+  .url-link {
+    display: inline-block; background: var(--ink); color: var(--cream);
+    font-size: 12px; padding: 8px 16px; border-radius: 6px;
+    text-decoration: none; margin-top: 12px;
+  }
+
+  /* ── SPANISH (hidden by default) ── */
+  [data-es] { display: none; }
+  body.es [data-en] { display: none; }
+  body.es [data-es] { display: revert; }
+  body.es .filter-grid, body.es .feature-row { display: grid; }
+
+  @media (max-width: 600px) {
+    .filter-grid, .feature-row { grid-template-columns: 1fr; }
+    .wrapper { padding: 24px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">School <em>The</em> World</div>
+    <div class="logo-sub">Library Program Dashboard</div>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('en', this)">EN</button>
+    <button class="lang-btn" onclick="setLang('es', this)">ES</button>
+  </div>
+</header>
+
+<div class="wrapper">
+
+  <!-- INTRO -->
+  <div class="intro">
+    <h1 data-en>Dashboard Guide</h1>
+    <h1 data-es>Guía del Panel</h1>
+    <p data-en>A quick reference for navigating the STW Library Program dashboard — the three tabs, how to filter, and the special features.</p>
+    <p data-es>Referencia rápida para usar el panel de Bibliotecas de STW — las tres pestañas, cómo filtrar, y las funciones especiales.</p>
+  </div>
+
+  <!-- THE THREE TABS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-icon" style="background:#FFF3E8">📋</div>
+      <h2 data-en>The Three Tabs</h2>
+      <h2 data-es>Las Tres Pestañas</h2>
+    </div>
+
+    <div class="card">
+      <div class="tab-pill roster" data-en>Community Roster</div>
+      <div class="tab-pill roster" data-es>Lista de Comunidades</div>
+      <p data-en>The master list of all 161 communities across Guatemala, Honduras, and Panama. Use this tab to scan the full program, validate data, and spot issues. Each row shows the community's country, change agent, which cycle years have been recorded, total investment, and a visual bar showing the STW vs. parent contribution split. Click any row to open its full year-by-year detail in the panel on the right. Communities with placeholder names (e.g. "Comunidades nuevas 1") are highlighted in yellow — the Data Quality panel on the right counts how many need attention.</p>
+      <p data-es>La lista completa de las 161 comunidades en Guatemala, Honduras y Panamá. Use esta pestaña para revisar todo el programa, validar datos e identificar problemas. Cada fila muestra el país, el agente de cambio, los años de ciclo registrados, la inversión total y una barra visual del aporte STW vs. padres. Haga clic en cualquier fila para ver el detalle año por año en el panel de la derecha. Las comunidades con nombres provisionales se resaltan en amarillo — el panel de Calidad de Datos muestra cuántas necesitan atención.</p>
+    </div>
+
+    <div class="card">
+      <div class="tab-pill log" data-en>Financial Log</div>
+      <div class="tab-pill log" data-es>Registro Financiero</div>
+      <p data-en>A flat record of every financial entry — one row per community per year, sorted alphabetically by community then by year. This is the most complete financial view: it shows the parent contribution, STW contribution, total investment, STW percentage, and book count for every year on record. The active filters apply here too, so you can narrow to a single country, agent, or year and see only those rows. Use the ⬇ CSV button to export what's currently visible.</p>
+      <p data-es>Un registro de cada entrada financiera — una fila por comunidad por año, ordenado alfabéticamente y luego por año. Esta es la vista financiera más completa: muestra el aporte de los padres, el aporte de STW, la inversión total, el porcentaje STW y la cantidad de libros para cada año registrado. Los filtros activos también aplican aquí. Use el botón ⬇ CSV para exportar lo que se muestra.</p>
+    </div>
+
+    <div class="card">
+      <div class="tab-pill history" data-en>Community History</div>
+      <div class="tab-pill history" data-es>Historial por Comunidad</div>
+      <p data-en>The best way to look at one specific community over time. Type any part of a community name in the search box — matching communities appear as clickable chips. Select one and a full table appears showing every year of data with a totals row at the bottom. Use the From Year and To Year dropdowns to narrow to a specific period. Works well for reporting on a single community's progress through the 5-year cycle. Use ⬇ CSV to download just that community's history.</p>
+      <p data-es>La mejor manera de analizar una comunidad específica a lo largo del tiempo. Escriba parte del nombre en el buscador — las coincidencias aparecen como botones seleccionables. Seleccione una y aparece una tabla completa con todos los años y una fila de totales al final. Use los filtros Desde Año y Hasta Año para un período específico. Ideal para reportes del avance de una comunidad en su ciclo de 5 años. Use ⬇ CSV para descargar solo esa comunidad.</p>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-icon" style="background:#EEF3FF">🔽</div>
+      <h2 data-en>Filters</h2>
+      <h2 data-es>Filtros</h2>
+    </div>
+
+    <div class="card">
+      <p data-en style="margin-bottom:12px">Filters appear at the top of every page and apply to all three tabs. You can combine any of them — they stack together. Click ↺ Reset to clear everything at once.</p>
+      <p data-es style="margin-bottom:12px">Los filtros aparecen en la parte superior y se aplican a las tres pestañas. Puede combinarlos — se acumulan. Haga clic en ↺ Limpiar para borrar todos a la vez.</p>
+
+      <div class="filter-grid">
+        <div class="filter-item">
+          <div class="name" data-en>Country</div>
+          <div class="name" data-es>País</div>
+          <div class="desc" data-en>Filter to Guatemala, Honduras, or Panama.</div>
+          <div class="desc" data-es>Filtra por Guatemala, Honduras o Panamá.</div>
+        </div>
+        <div class="filter-item">
+          <div class="name" data-en>Change Agent</div>
+          <div class="name" data-es>Agente de Cambio</div>
+          <div class="desc" data-en>Shows all communities managed by one agent.</div>
+          <div class="desc" data-es>Muestra todas las comunidades de un agente.</div>
+          <div class="example" data-en>e.g. select "Francisco" to see his 12 communities</div>
+          <div class="example" data-es>ej. seleccione "Francisco" para ver sus 12 comunidades</div>
+        </div>
+        <div class="filter-item">
+          <div class="name" data-en>Cycle Year</div>
+          <div class="name" data-es>Año de Ciclo</div>
+          <div class="desc" data-en>Filter by where communities are in their 5-year program. Year 1 = 5× match, Year 5 = 1× match.</div>
+          <div class="desc" data-es>Filtra por la etapa del programa de 5 años. Año 1 = aporte 5×, Año 5 = aporte 1×.</div>
+        </div>
+        <div class="filter-item">
+          <div class="name" data-en>Calendar Year</div>
+          <div class="name" data-es>Año Calendario</div>
+          <div class="desc" data-en>Filter to a specific year money was collected. Data runs 2010–2025.</div>
+          <div class="desc" data-es>Filtra por el año en que se recaudó. Los datos van de 2010 a 2025.</div>
+        </div>
+        <div class="filter-item" style="grid-column: 1 / -1">
+          <div class="name" data-en>Search Community</div>
+          <div class="name" data-es>Buscar Comunidad</div>
+          <div class="desc" data-en>Type any part of a community or municipality name. Updates as you type.</div>
+          <div class="desc" data-es>Escriba parte del nombre de la comunidad o municipio. Se actualiza al escribir.</div>
+          <div class="example" data-en>e.g. "Chich" finds Chiché, Chicajac II, Chilamatada…</div>
+          <div class="example" data-es>ej. "Chich" encuentra Chiché, Chicajac II, Chilamatada…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPECIAL FEATURES -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-icon" style="background:#E8F5EC">✦</div>
+      <h2 data-en>Special Features</h2>
+      <h2 data-es>Funciones Especiales</h2>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-card currency">
+        <h3 data-en>Currency Toggle</h3>
+        <h3 data-es>Cambio de Moneda</h3>
+        <p data-en>Found in the tab bar, right side. Switch between Local (default) and USD equivalent to compare Guatemala, Honduras, and Panama in a single currency.</p>
+        <p data-es>Se encuentra en la barra de pestañas, lado derecho. Cambie entre Local (predeterminado) y equivalente USD para comparar los tres países en una sola moneda.</p>
+        <ul style="margin-top:8px">
+          <li data-en>Guatemala: Q ÷ 7.6</li>
+          <li data-en>Honduras: L ÷ 25</li>
+          <li data-en>Panama: already USD</li>
+          <li data-es>Guatemala: Q ÷ 7.6</li>
+          <li data-es>Honduras: L ÷ 25</li>
+          <li data-es>Panamá: ya está en USD</li>
+        </ul>
+        <p style="margin-top:8px" data-en>The rates are editable — they appear as small inputs when USD is selected. Original local amounts show in small text below each converted figure.</p>
+        <p style="margin-top:8px" data-es>Las tasas son editables — aparecen como campos pequeños al seleccionar USD. Los montos originales se muestran en texto pequeño debajo de cada cifra convertida.</p>
+      </div>
+
+      <div class="feature-card language">
+        <h3 data-en>Language Toggle</h3>
+        <h3 data-es>Cambio de Idioma</h3>
+        <p data-en>EN / ES buttons in the top-right corner of the header. Switches every label, filter, column header, and message instantly between English and Spanish.</p>
+        <p data-es>Botones EN / ES en la esquina superior derecha del encabezado. Cambia todos los rótulos, filtros, encabezados de columnas y mensajes instantáneamente entre inglés y español.</p>
+        <p style="margin-top:8px" data-en>Community names and agent names stay as-is — they are proper nouns and do not change with the language.</p>
+        <p style="margin-top:8px" data-es>Los nombres de comunidades y agentes permanecen igual — son nombres propios y no cambian con el idioma.</p>
+      </div>
+
+      <div class="feature-card quality">
+        <h3 data-en>Data Quality Panel</h3>
+        <h3 data-es>Panel de Calidad de Datos</h3>
+        <p data-en>On the right side of the Community Roster tab. Shows three counts at a glance:</p>
+        <p data-es>En el lado derecho de la pestaña Lista de Comunidades. Muestra tres indicadores de un vistazo:</p>
+        <ul style="margin-top:8px">
+          <li data-en>Generic names — placeholder communities needing real names</li>
+          <li data-en>Missing agent — communities with no change agent assigned</li>
+          <li data-en>No split data — communities where only the total is recorded</li>
+          <li data-es>Nombres genéricos — comunidades que necesitan nombre real</li>
+          <li data-es>Sin agente — comunidades sin agente de cambio asignado</li>
+          <li data-es>Sin datos de división — solo el total está registrado</li>
+        </ul>
+        <p style="margin-top:8px" data-en>Click "Show generic names only" to filter the roster to just those rows.</p>
+        <p style="margin-top:8px" data-es>Haga clic en "Ver solo nombres genéricos" para filtrar la lista a esas filas.</p>
+      </div>
+
+      <div class="feature-card download">
+        <h3 data-en>Download / CSV Export</h3>
+        <h3 data-es>Descarga / Exportar CSV</h3>
+        <p data-en>Every tab has a ⬇ CSV button that exports exactly what is currently visible — respecting all active filters and the currency setting.</p>
+        <p data-es>Cada pestaña tiene un botón ⬇ CSV que exporta exactamente lo que se muestra — respetando los filtros activos y la configuración de moneda.</p>
+        <ul style="margin-top:8px">
+          <li data-en>Roster CSV — one row per community, totals rolled up</li>
+          <li data-en>Financial Log CSV — one row per year per community</li>
+          <li data-en>Community History CSV — one community's full history</li>
+          <li data-es>Lista CSV — una fila por comunidad, totales acumulados</li>
+          <li data-es>Registro CSV — una fila por año por comunidad</li>
+          <li data-es>Historial CSV — historial completo de una comunidad</li>
+        </ul>
+        <p style="margin-top:8px" data-en>Files open directly in Excel and Google Sheets with accented characters (Quiché, Cañazas) displaying correctly.</p>
+        <p style="margin-top:8px" data-es>Los archivos abren directamente en Excel y Google Sheets con caracteres acentuados (Quiché, Cañazas) correctamente.</p>
+      </div>
+    </div>
+
+    <div class="note" data-en>
+      ⚠ The USD equivalent figures are approximations using fixed rates and are intended for cross-country comparison only — not for financial reporting. Always validate figures in local currency with your country manager.
+    </div>
+    <div class="note" data-es>
+      ⚠ Las cifras en equivalente USD son aproximaciones con tasas fijas y son solo para comparación entre países — no para reportes financieros. Siempre valide las cifras en moneda local con el responsable del país.
+    </div>
+  </div>
+
+  <!-- LINK BACK -->
+  <div style="text-align:center;padding-top:8px">
+    <a class="url-link" href="https://larahoyem-eng.github.io/stw-libraries/" target="_blank" data-en>→ Open the Dashboard</a>
+    <a class="url-link" href="https://larahoyem-eng.github.io/stw-libraries/" target="_blank" data-es>→ Abrir el Panel</a>
+  </div>
+
+</div>
+
+<script>
+function setLang(lang, btn) {
+  document.body.classList.toggle('es', lang === 'es');
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
