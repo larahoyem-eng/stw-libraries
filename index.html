@@ -212,12 +212,12 @@ body.es [data-es]{display:revert}
 </div>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('roster')" data-en>Community Roster</button>
-  <button class="tab-btn active" onclick="switchTab('roster')" data-es style="display:none">Lista de Comunidades</button>
-  <button class="tab-btn" onclick="switchTab('log')" data-en>Financial Log</button>
-  <button class="tab-btn" onclick="switchTab('log')" data-es style="display:none">Registro Financiero</button>
-  <button class="tab-btn" onclick="switchTab('history')" data-en>Community History</button>
-  <button class="tab-btn" onclick="switchTab('history')" data-es style="display:none">Historial por Comunidad</button>
+  <button class="tab-btn active" data-tab="roster" onclick="switchTab('roster')" data-en>Community Roster</button>
+  <button class="tab-btn active" data-tab="roster" onclick="switchTab('roster')" data-es style="display:none">Lista de Comunidades</button>
+  <button class="tab-btn" data-tab="log" onclick="switchTab('log')" data-en>Financial Log</button>
+  <button class="tab-btn" data-tab="log" onclick="switchTab('log')" data-es style="display:none">Registro Financiero</button>
+  <button class="tab-btn" data-tab="history" onclick="switchTab('history')" data-en>Community History</button>
+  <button class="tab-btn" data-tab="history" onclick="switchTab('history')" data-es style="display:none">Historial por Comunidad</button>
 </div>
 
 <div class="main">
@@ -497,7 +497,7 @@ function renderRoster(){
     const agent=AGENTS_MAP[c.community]||'';
     const isPlhdr=isPlaceholder(c.community);
     const sel=selectedComm&&selectedComm.community===c.community?'selected':'';
-    return `<tr class="${isPlhdr?'placeholder-row':''} ${sel}" onclick="selectCommunity(${JSON.stringify(c.country)},${JSON.stringify(c.community)})">
+    return `<tr class="${isPlhdr?'placeholder-row':''} ${sel}" onclick="selectCommunity(this,${JSON.stringify(c.country)},${JSON.stringify(c.community)})">
       <td><div class="flag-cell"><div class="country-dot ${dotClass[c.country]||''}"></div>${c.country}</div></td>
       <td><strong>${c.community}</strong>${c.municipality?`<br><span style="font-size:10px;color:var(--muted)">${c.municipality}</span>`:''}</td>
       <td>${agent?`<span style="font-size:12px">${agent}</span>`:'<span class="no-agent">—</span>'}</td>
@@ -518,11 +518,11 @@ function sortRoster(col){
 }
 
 // ── COMMUNITY DETAIL SIDEBAR ─────────────────────────────────────────────────
-function selectCommunity(country, community){
+function selectCommunity(el, country, community){
   selectedComm={country,community};
   // Highlight row
   document.querySelectorAll('#rosterBody tr').forEach(tr=>tr.classList.remove('selected'));
-  event.currentTarget.classList.add('selected');
+  el.classList.add('selected');
 
   const fins=(FIN_BY_COMM[country+'|'+community]||[]).sort((a,b)=>a.calYear-b.calYear);
   const agent=AGENTS_MAP[community]||null;
@@ -630,14 +630,14 @@ function searchHistory(){
   chips.innerHTML=matches.slice(0,20).map(k=>{
     const [country,community]=k.split('|');
     const active=histSelected&&histSelected===k?'active':'';
-    return `<div class="comm-chip ${active}" onclick="selectHistory(${JSON.stringify(country)},${JSON.stringify(community)})">${community} <span style="font-size:10px;opacity:.6">(${country})</span></div>`;
+    return `<div class="comm-chip ${active}" onclick="selectHistory(this,${JSON.stringify(country)},${JSON.stringify(community)})">${community} <span style="font-size:10px;opacity:.6">(${country})</span></div>`;
   }).join('');
 }
 
-function selectHistory(country, community){
+function selectHistory(el, country, community){
   histSelected=country+'|'+community;
   document.querySelectorAll('.comm-chip').forEach(c=>c.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  el.classList.add('active');
   renderHistory();
 }
 
@@ -713,12 +713,7 @@ function switchTab(name){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
-  document.querySelectorAll('.tab-btn').forEach(b=>{
-    const txt=b.textContent.toLowerCase();
-    if(name==='roster'&&(txt.includes('roster')||txt.includes('comunidades'))) b.classList.add('active');
-    if(name==='log'&&(txt.includes('log')||txt.includes('registro'))) b.classList.add('active');
-    if(name==='history'&&(txt.includes('history')||txt.includes('historial'))) b.classList.add('active');
-  });
+  document.querySelectorAll('.tab-btn[data-tab="'+name+'"]').forEach(b=>b.classList.add('active'));
 }
 
 // ── LANGUAGE ──────────────────────────────────────────────────────────────────
